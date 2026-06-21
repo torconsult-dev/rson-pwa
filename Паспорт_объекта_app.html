@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0E2A38">
-<title>Паспорт объекта</title>
+<title>Паспорт объекта РСОН</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
@@ -23,7 +23,9 @@ input,select,textarea{font-family:inherit;font-size:16px;}
 /* ===== App bar ===== */
 .appbar{position:sticky;top:0;z-index:50;background:var(--dark);color:#fff;
   padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;display:flex;align-items:center;gap:10px;}
-.appbar h1{font-size:17px;margin:0;font-weight:700;flex:1;line-height:1.2;}
+.appbar .titlebox{flex:1;min-width:0;}
+.appbar h1{font-size:17px;margin:0;font-weight:700;line-height:1.2;}
+.appbar .appnote{font-size:9.5px;line-height:1.2;color:#BFD5DE;margin-top:2px;font-weight:500;}
 .appbar .pct{font-size:13px;color:var(--amber);font-weight:700;white-space:nowrap;}
 .progress{height:4px;background:#143846;}
 .progress > div{height:100%;background:var(--mint);width:0;transition:width .3s;}
@@ -154,6 +156,7 @@ textarea{min-height:90px;resize:vertical;}
   .p-sign{flex:1;text-align:center;}
   .p-sign img{height:50px;}
   .p-sign .line{border-top:1px solid #000;margin-top:4px;padding-top:2px;font-size:10px;}
+  .devprint{font-size:9px;color:#555;text-align:center;margin:4px 0 10px;}
   .pagebreak{page-break-before:always;}
 }
 .fabhelp{font-size:13px;color:var(--muted);text-align:center;margin-top:10px;}
@@ -201,7 +204,10 @@ textarea{min-height:90px;resize:vertical;}
 <body>
 
 <div class="appbar">
-  <h1 id="appTitle">Паспорт объекта</h1>
+  <div class="titlebox">
+    <h1 id="appTitle">Паспорт объекта</h1>
+    <div class="appnote">Разработка и методическое сопровождение: проектно-сметный отдел ООО «ТОР-Консалт».</div>
+  </div>
   <div class="pct" id="pct"></div>
 </div>
 <div class="progress"><div id="progbar"></div></div>
@@ -355,7 +361,8 @@ const SECTIONS=[
  ]},
 ];
 
-const EMAIL_TO="Pavel.rus178@yandex.ru";
+const EMAIL_TO="pavel.rus178@yandex.ru";
+const DEV_NOTE="Разработка и методическое сопровождение: проектно-сметный отдел ООО «ТОР-Консалт».";
 const LS_KEY="eapo_draft_v1";
 
 /* ← Сюда можно вписать API-ключ Яндекс.Геокодера (или ввести при первом запросе) */
@@ -919,11 +926,15 @@ function renderReview(){
     <label class="repopt"><input type="checkbox" id="rep-act" checked><div><b>Акт осмотра (ЭА)</b><br><span style="font-size:12px;color:var(--muted)">с фото и подписями</span></div></label>
     <label class="repopt"><input type="checkbox" id="rep-issues" ${STATE.issues.length?'checked':''}><div><b>Замечания</b> · ${STATE.issues.length}<br><span style="font-size:12px;color:var(--muted)">с фото</span></div></label>
     <label class="repopt"><input type="checkbox" id="rep-journal" ${STATE.journal.records.length||STATE.journal.people.length?'checked':''}><div><b>Журнал и ответственные</b> · ${STATE.journal.records.length}</div></label>
-    <div class="field" style="margin-top:8px"><label class="q">Почта для отправки акта</label>
-      <input type="email" id="rep-email" value="${escapeHtml(STATE.userEmail||"")}" placeholder="введите почту для отправки акта">
-      <div class="hint"><b>i</b><span>Отчёт уйдёт на ${EMAIL_TO} и на введённую почту.</span></div></div>`;
+    <div class="field" style="margin-top:8px"><label class="q">Куда отправлять отчёт</label>
+      <label class="repopt"><input type="checkbox" id="rep-default-email" ${STATE.sendDefaultEmail!==false?'checked':''}><div><b>${EMAIL_TO}</b><br><span style="font-size:12px;color:var(--muted)">включено по умолчанию, можно снять галочку</span></div></label>
+      <input type="email" id="rep-email" value="${escapeHtml(STATE.userEmail||"")}" placeholder="дополнительная почта для отправки акта">
+      <div class="hint"><b>i</b><span>Фото и полный акт передаются через PDF. Текст письма — краткая выгрузка.</span></div></div>`;
 
+  html+=`<div class="hint" id="pdfHint"><b>PDF</b><span>Если открыто внутри Telegram, печать PDF может не сработать. Откройте ссылку в Safari/Chrome или используйте кнопку «Открыть акт для PDF».</span></div>`;
   html+=`<button class="bigbtn" style="background:var(--teal)" id="btnPrint">🖨 Печать / Сохранить как PDF</button>`;
+  html+=`<button class="bigbtn secondary" id="btnOpenReport">📄 Открыть акт для PDF</button>`;
+  html+=`<button class="bigbtn secondary" id="btnDownloadReport">⬇ Скачать акт HTML</button>`;
   if(miss.length){
     html+=`<button class="bigbtn btn-disabled" disabled>✉ Отправить — недоступно</button>
       <div class="fabhelp">Кнопка отправки включится после заполнения обязательных пунктов акта</div>`;
@@ -938,9 +949,12 @@ function renderReview(){
   root.querySelectorAll("[data-goto]").forEach(it=>it.addEventListener("click",()=>{
     gotoSection(+it.getAttribute("data-goto"));
   }));
+  const cb=$("#rep-default-email");if(cb)cb.addEventListener("change",e=>{STATE.sendDefaultEmail=e.target.checked;save();});
   const em=$("#rep-email");if(em)em.addEventListener("input",e=>{STATE.userEmail=e.target.value.trim();save();});
   const reportOpts=()=>({act:$("#rep-act").checked,issues:$("#rep-issues").checked,journal:$("#rep-journal").checked});
   const bp=$("#btnPrint");if(bp)bp.addEventListener("click",()=>doPrintReport(reportOpts()));
+  const bo=$("#btnOpenReport");if(bo)bo.addEventListener("click",()=>openReportForPdf(reportOpts()));
+  const bd=$("#btnDownloadReport");if(bd)bd.addEventListener("click",()=>downloadReportHtml(reportOpts()));
   const be=$("#btnEmail");if(be)be.addEventListener("click",()=>doEmailReport(reportOpts()));
   window.scrollTo(0,0);
 }
@@ -954,7 +968,8 @@ async function buildPrint(){
     return (val===undefined||val===null||val==="")?"—":val;
   }
   let h=`<div class="p-h1">АКТ ПРЕДПРОЕКТНОГО ОСМОТРА</div>
-    <div class="p-sub">ЭА · V1.3.1 · ${escapeHtml(d.id01||"")} · ${escapeHtml(d.d01||"")}</div>`;
+    <div class="p-sub">ЭА · V1.3.1 · ${escapeHtml(d.id01||"")} · ${escapeHtml(d.d01||"")}</div>
+    <div class="devprint">${DEV_NOTE}</div>`;
   for(const sec of SECTIONS){
     if(sec.id==="s13")continue; // подписи отдельно
     const rows=sec.fields.filter(f=>f.type!=="photo"&&f.type!=="sign").map(f=>{
@@ -1002,7 +1017,7 @@ function buildActText(){
     if(f.type==="sign"){const s=STATE.signs[f.id];return s==="PAPER"?"в бумаге":(s?"эл. подпись":"—");}
     return (val===undefined||val===null||val==="")?"—":val;
   }
-  let t=`АКТ ПРЕДПРОЕКТНОГО ОСМОТРА (ЭА · V1.3.1)\n`;
+  let t=`АКТ ПРЕДПРОЕКТНОГО ОСМОТРА (ЭА · V1.3.1)\n${DEV_NOTE}\n`;
   t+=`Код акта: ${d.id01||"—"}\nОбъект: ${d.t01||"—"}\nЗаказчик: ${d.t04||"—"}\nДата: ${d.d01||"—"}\n`;
   t+=`====================================\n`;
   SECTIONS.forEach(sec=>{
@@ -1017,7 +1032,9 @@ function doEmail(){
   const d=STATE.data;
   const subj=`Акт осмотра ${d.id01||""} — ${d.t01||""}`.trim();
   const body=buildActText();
-  const url=`mailto:${recipients()}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
+  const rec=recipients();
+  if(!rec && !confirm("Адрес получателя не выбран. Открыть письмо без адресата?"))return;
+  const url=`mailto:${rec}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`;
   window.location.href=url;
 }
 
@@ -1030,14 +1047,17 @@ function ensureModel(){
   if(!Array.isArray(STATE.journal.people))STATE.journal.people=[];
   if(!Array.isArray(STATE.journal.records))STATE.journal.records=[];
   if(typeof STATE.userEmail!=="string")STATE.userEmail="";
+  if(typeof STATE.sendDefaultEmail!=="boolean")STATE.sendDefaultEmail=true;
   if(!STATE.tab)STATE.tab="act";
 }
 function uid(p){return (p||"x")+"_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,6);}
 const STATUS=[["open","Открыто"],["progress","В работе"],["done","Решено"]];
 function statusLabel(s){const o=STATUS.find(x=>x[0]===s);return o?o[1]:"Открыто";}
 function recipients(){
-  const list=[EMAIL_TO];const u=(STATE.userEmail||"").trim();
-  if(u && u.toLowerCase()!==EMAIL_TO.toLowerCase())list.push(u);
+  const list=[];
+  if(STATE.sendDefaultEmail!==false)list.push(EMAIL_TO);
+  const u=(STATE.userEmail||"").trim();
+  if(u && !list.some(x=>x.toLowerCase()===u.toLowerCase()))list.push(u);
   return list.join(",");
 }
 function setActiveTabBtn(tab){document.querySelectorAll('.tabbtn').forEach(b=>b.classList.toggle('active',b.getAttribute('data-tab')===tab));}
@@ -1075,9 +1095,10 @@ function renderIssues(){
   if(list.length){
     h+=`<div class="sendblock">
       <div style="font-weight:700;margin-bottom:6px">Отправить список замечаний</div>
-      <div class="field"><label class="q">Почта для отправки</label>
-        <input type="email" id="iss-email" value="${escapeHtml(STATE.userEmail||"")}" placeholder="введите почту для отправки">
-        <div class="hint"><b>i</b><span>Уйдёт на ${EMAIL_TO} и на введённую почту. Фото — в PDF (печать).</span></div></div>
+      <div class="field"><label class="q">Куда отправлять замечания</label>
+        <label class="repopt"><input type="checkbox" id="iss-default-email" ${STATE.sendDefaultEmail!==false?'checked':''}><div><b>${EMAIL_TO}</b><br><span style="font-size:12px;color:var(--muted)">включено по умолчанию, можно снять галочку</span></div></label>
+        <input type="email" id="iss-email" value="${escapeHtml(STATE.userEmail||"")}" placeholder="дополнительная почта для отправки">
+        <div class="hint"><b>i</b><span>Фото и полный акт передаются через PDF. Текст письма — краткая выгрузка.</span></div></div>
       <button class="bigbtn" style="background:var(--teal)" id="iss-print">🖨 Печать / PDF</button>
       <button class="bigbtn sendmail" id="iss-send">✉ Отправить замечания</button></div>`;
   }
@@ -1087,6 +1108,7 @@ function renderIssues(){
     STATE.issues.push(it);save();openIssue(it.id);
   });
   root.querySelectorAll("[data-openissue]").forEach(el=>el.addEventListener("click",()=>openIssue(el.getAttribute("data-openissue"))));
+  const cbe=root.querySelector("#iss-default-email");if(cbe)cbe.addEventListener("change",e=>{STATE.sendDefaultEmail=e.target.checked;save();});
   const em=root.querySelector("#iss-email");if(em)em.addEventListener("input",e=>{STATE.userEmail=e.target.value.trim();save();});
   const ip=root.querySelector("#iss-print");if(ip)ip.addEventListener("click",()=>doPrintReport({issues:true}));
   const is=root.querySelector("#iss-send");if(is)is.addEventListener("click",()=>doEmailReport({issues:true}));
@@ -1299,19 +1321,76 @@ function buildJournalPrint(){
   return h;
 }
 async function buildReport(opts){
-  let h=`<div class="p-h1">ПАСПОРТ ОБЪЕКТА</div><div class="p-sub">${escapeHtml(STATE.data.t01||"—")} · ${escapeHtml(STATE.data.d01||"")}</div>`;
+  let h=`<div class="p-h1">ПАСПОРТ ОБЪЕКТА</div><div class="p-sub">${escapeHtml(STATE.data.t01||"—")} · ${escapeHtml(STATE.data.d01||"")}</div><div class="devprint">${DEV_NOTE}</div>`;
   if(opts.act)h+=await buildPrint();
   if(opts.issues)h+=await buildIssuesPrint();
   if(opts.journal)h+=buildJournalPrint();
   return h;
 }
+function isTelegramWebView(){
+  return /Telegram/i.test(navigator.userAgent||"") || document.referrer.indexOf("t.me")>=0;
+}
+function reportHtmlDocument(bodyHtml){
+  return `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Акт обследования РСОН</title>
+  <style>
+    body{font-family:Arial,sans-serif;margin:18px;color:#000;font-size:12px}
+    .toolbar{position:sticky;top:0;background:#fff;border:1px solid #ddd;border-radius:10px;padding:10px;margin-bottom:14px}
+    .toolbar button{font-size:16px;padding:12px 16px;border-radius:10px;border:0;background:#1C7293;color:#fff;font-weight:700}
+    .toolbar .hint{font-size:13px;color:#555;margin-top:8px;line-height:1.35}
+    .p-h1{font-size:18px;font-weight:700;text-align:center;margin:0 0 2px}
+    .p-sub{text-align:center;color:#444;font-size:11px;margin-bottom:10px}
+    .p-sec{margin:10px 0 4px;font-weight:700;font-size:13px;border-bottom:1px solid #000;padding-bottom:2px}
+    .p-row{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted #bbb}
+    .p-row .k{color:#333}.p-row .v{font-weight:600;text-align:right;max-width:60%}
+    .p-photos{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+    .p-photos figure{width:31%;margin:0;font-size:9px;text-align:center}
+    .p-photos img{width:100%;height:auto;border:1px solid #999}
+    .devprint{font-size:9px;color:#555;text-align:center;margin:4px 0 10px}
+    .p-signs{display:flex;justify-content:space-between;gap:10px;margin-top:16px}
+    .p-sign{flex:1;text-align:center}
+    .p-sign img{height:50px}.p-sign .line{border-top:1px solid #000;margin-top:4px;padding-top:2px;font-size:10px}
+    .pagebreak{page-break-before:always}
+    @media print{.toolbar{display:none}body{margin:0;font-size:12px}}
+  </style></head><body>
+  <div class="toolbar"><button onclick="window.print()">🖨 Печать / Сохранить как PDF</button>
+  <div class="hint">iPhone: нажмите кнопку, затем в окне печати раздвиньте предпросмотр двумя пальцами → «Поделиться» → «Сохранить в Файлы» или отправьте PDF.</div></div>
+  <div class="devprint">${DEV_NOTE}</div>${bodyHtml}</body></html>`;
+}
 async function doPrintReport(opts){
   if(!opts.act&&!opts.issues&&!opts.journal){alert("Выберите хотя бы один раздел отчёта.");return;}
   $("#printRoot").innerHTML=await buildReport(opts);
-  window.print();
+  if(isTelegramWebView()){
+    alert("Вы открыли приложение внутри Telegram. Встроенный браузер Telegram часто блокирует печать/PDF. Нажмите «…» сверху и выберите «Открыть в Safari», затем снова нажмите «Печать / PDF». Сейчас попробую вызвать печать.");
+  }
+  setTimeout(()=>window.print(),250);
+}
+async function openReportForPdf(opts){
+  if(!opts.act&&!opts.issues&&!opts.journal){alert("Выберите хотя бы один раздел отчёта.");return;}
+  const w=window.open("about:blank","_blank");
+  const body=await buildReport(opts);
+  const html=reportHtmlDocument(body);
+  if(!w){
+    alert("Браузер заблокировал новое окно. Откройте приложение в Safari/Chrome, не внутри Telegram, или используйте кнопку «Скачать акт HTML».");
+    return;
+  }
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+}
+async function downloadReportHtml(opts){
+  if(!opts.act&&!opts.issues&&!opts.journal){alert("Выберите хотя бы один раздел отчёта.");return;}
+  const body=await buildReport(opts);
+  const html=reportHtmlDocument(body);
+  const name="Акт_обследования_"+((STATE.data.id01||"РСОН")+"_"+(STATE.data.d01||"")).replace(/[^0-9A-Za-zА-Яа-яЁё_.-]+/g,"_")+".html";
+  const blob=new Blob([html],{type:"text/html;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},500);
 }
 function buildReportText(opts){
-  let t="ПАСПОРТ ОБЪЕКТА\n";
+  let t="ПАСПОРТ ОБЪЕКТА\n"+DEV_NOTE+"\n";
   t+="Объект: "+(STATE.data.t01||"—")+"\nДата: "+(STATE.data.d01||"—")+"\n====================================\n";
   if(opts.act)t+="\n[АКТ ОСМОТРА]\n"+buildActText();
   if(opts.issues){
@@ -1332,7 +1411,9 @@ function doEmailReport(opts){
   if(!opts.act&&!opts.issues&&!opts.journal){alert("Выберите хотя бы один раздел отчёта.");return;}
   const subj=(opts.act?"Паспорт объекта":"Замечания")+" — "+(STATE.data.t01||"");
   const body=buildReportText(opts);
-  const url=`mailto:${recipients()}?subject=${encodeURIComponent(subj.trim())}&body=${encodeURIComponent(body)}`;
+  const rec=recipients();
+  if(!rec && !confirm("Адрес получателя не выбран. Открыть письмо без адресата?"))return;
+  const url=`mailto:${rec}?subject=${encodeURIComponent(subj.trim())}&body=${encodeURIComponent(body)}`;
   window.location.href=url;
 }
 
