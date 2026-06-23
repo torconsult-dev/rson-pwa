@@ -125,7 +125,7 @@ select.compactSelect{min-height:46px}
 input[data-phone],input[data-email]{font-variant-numeric:tabular-nums}
 
 /* v0.2.6 UX */
-.start-actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}.start-actions .bigbtn{margin:0}
+.start-actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}.start-actions .bigbtn{margin:0}.start-actions button{cursor:pointer}.status#startStatus{margin-top:10px}
 .pageBadge{display:inline-flex;align-items:center;gap:6px;background:#EAF7F4;color:#174D44;border:1px solid rgba(42,157,143,.35);border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800;margin:4px 0 12px}
 .validationBox.pageError{display:none;background:#FFE8DF;border:1px solid #F0B39D;color:#64301F;border-radius:12px;padding:12px;margin:10px 0;font-size:13px}.validationBox.pageError ul{margin:6px 0 0 18px;padding:0}
 .field-tools{margin-top:8px}.voicebtn.stop{border-color:#D65A31;color:#D65A31}.clearfield{border-color:#9DB0BC;color:#42515A}.material-comment{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}.material-comment textarea{min-height:70px}
@@ -140,9 +140,10 @@ input[data-phone],input[data-email]{font-variant-numeric:tabular-nums}
   <div class="hero"><div class="eyebrow">Пилотная PWA-форма · один акт</div><h2>Акт предпроектного осмотра объекта</h2><p>Название акта можно изменить на первой странице вручную или надиктовать голосом. Электронный акт по обновлённому бумажному акту: общие данные, оборудование, кабельные трассы, заземление, молниезащита, фото, эскиз и подписи.</p></div>
   <div class="card friendlyStart"><b>Как заполнять</b><ul><li>Нажмите «Начать / открыть акт».</li><li>Дата, индивидуальный номер и QR-код формируются автоматически.</li><li>Разрешите GPS, камеру и микрофон — либо заполните поля вручную.</li><li>Полный акт с фото, эскизом и подписями формируется только через PDF.</li></ul></div>
   <div class="start-actions">
-    <button class="bigbtn warn" onclick="newActFromStart()">Новый акт</button>
-    <button class="bigbtn secondary" onclick="continueDraft()">Продолжить черновик</button>
+    <button class="bigbtn warn" id="btnNewActStart" type="button" data-start-action="new">Новый акт</button>
+    <button class="bigbtn secondary" id="btnContinueDraftStart" type="button" data-start-action="continue">Продолжить черновик</button>
   </div>
+  <div class="status" id="startStatus">Готово к созданию нового акта или продолжению сохранённого черновика.</div>
   <div class="devnote">Код приложения открытый. Репозиторий: https://github.com/torconsult-dev/rson-pwa</div>
 </div>
 <div id="screen-cover" class="screen">
@@ -171,13 +172,13 @@ input[data-phone],input[data-email]{font-variant-numeric:tabular-nums}
 <div id="printRoot"></div>
 <script>
 const DEV_NOTE='Разработка и методическое сопровождение: проектно-сметный отдел ООО «ТОР-Консалт».';
-const APP_VERSION='v0.2.6';
+const APP_VERSION='v0.2.7';
 const ACT_KEY='singleact';
 const DEFAULT_ACT_TITLE='Акт предпроектного осмотра объекта';
 const TYPES={singleact:{title:DEFAULT_ACT_TITLE,prefix:'EACT',desc:'Единый электронный акт по обновлённой форме.'}};
 const STATE={type:ACT_KEY,id:null,date:null,fields:{},checks:{},photos:[],signs:{},sketch:null,step:0,formPage:0};
 const STEPS=['start','cover','form','extra','sign'];
-const DRAFT_KEYS=['rson_eact_one_act_v0_2_6','rson_eact_one_act_v0_2_5','rson_eact_one_act_v0_2_4','rson_eact_one_act_v0_2_3','rson_eact_one_act_v0_2_2','rson_eact_one_act_v0_2_1','rson_eact_v0_2_1','rson_eact_v0_1_5_1','rson_eact_v0_1_5','rson_eact_v014','rson_eact_v013','rson_eact_v0121','rson_eact_v11','rson_eact_v10','rson_eact_v09','rson_eact_v08','rson_eact_v07','rson_eact_v06','rson_eact_v05'];
+const DRAFT_KEYS=['rson_eact_one_act_v0_2_7','rson_eact_one_act_v0_2_6','rson_eact_one_act_v0_2_5','rson_eact_one_act_v0_2_4','rson_eact_one_act_v0_2_3','rson_eact_one_act_v0_2_2','rson_eact_one_act_v0_2_1','rson_eact_v0_2_1','rson_eact_v0_1_5_1','rson_eact_v0_1_5','rson_eact_v014','rson_eact_v013','rson_eact_v0121','rson_eact_v11','rson_eact_v10','rson_eact_v09','rson_eact_v08','rson_eact_v07','rson_eact_v06','rson_eact_v05'];
 let SUPPRESS_DRAFT_SAVE=false;
 const commonCover=[
   {id:'act_date',label:'Дата заполнения',type:'date',req:true},
@@ -263,7 +264,7 @@ function schemaFor(type){return [
     txt('coords_phone','Координаты с навигатора телефона',false)
   ]}
 ]}
-function init(){STATE.type=ACT_KEY;bindInputs();loadDraft(true,{stayOnStart:true});setAutofillToday();showStep(0)}
+function init(){STATE.type=ACT_KEY;bindInputs();bindStartButtons();loadDraft(true,{stayOnStart:true});setAutofillToday();showStep(0);refreshServiceWorker()}
 function renderTypes(){}
 function selectType(k){STATE.type=ACT_KEY;saveDraft();updateProgress()}
 function updateTypeSummary(){}
@@ -271,13 +272,42 @@ function isoDate(){const d=new Date();const y=d.getFullYear();const m=String(d.g
 function compactDate(d=new Date()){const y=d.getFullYear();const m=String(d.getMonth()+1).padStart(2,'0');const day=String(d.getDate()).padStart(2,'0');return `${y}${m}${day}`}
 function setAutofillToday(){const today=isoDate();const old=STATE.date;STATE.date=today;STATE.fields=STATE.fields||{};if(!STATE.fields.act_date||STATE.fields.act_date===old||STATE.fields.act_date==='2026-06-22')STATE.fields.act_date=today;if(!STATE.fields.act_title)STATE.fields.act_title=DEFAULT_ACT_TITLE}
 function genId(){const t=TYPES[ACT_KEY];const d=new Date();const ds=compactDate(d);const hm=String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0');const r=Math.random().toString(36).toUpperCase().replace(/[^A-Z0-9]/g,'').slice(2,6);return `RSON-${t.prefix}-${ds}-${hm}-${r}`;}
-function clearAllDrafts(){DRAFT_KEYS.forEach(k=>{try{localStorage.removeItem(k)}catch(e){}})}
+function setStartStatus(msg,isError=false){const el=document.getElementById('startStatus');if(el){el.textContent=msg;el.style.color=isError?'#7A1F12':''}}
+function clearAllDrafts(){
+  DRAFT_KEYS.forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+  try{for(let i=localStorage.length-1;i>=0;i--){const k=localStorage.key(i)||'';if(/^rson[_-]eact/i.test(k)||/^rson-eact/i.test(k))localStorage.removeItem(k)}}catch(e){}
+  if(window.caches&&caches.keys)caches.keys().then(keys=>Promise.all(keys.filter(k=>/^rson-eact/i.test(k)).map(k=>caches.delete(k)))).catch(()=>{});
+}
 function resetStateForNewAct(){Object.assign(STATE,{type:ACT_KEY,id:null,date:null,fields:{},checks:{},photos:[],signs:{},sketch:null,step:0,formPage:0})}
 function cancelActiveVoice(){if(ACTIVE_VOICE){try{ACTIVE_VOICE.rec.stop()}catch(e){} if(ACTIVE_VOICE.btn)ACTIVE_VOICE.btn.classList.remove('rec'); ACTIVE_VOICE=null;}clearVoiceTimer()}
-function beginFreshAct(){SUPPRESS_DRAFT_SAVE=true;cancelActiveVoice();clearAllDrafts();resetStateForNewAct();setAutofillToday();STATE.id=genId();renderAll();showStep(1);SUPPRESS_DRAFT_SAVE=false;saveDraft()}
-function newActFromStart(){if(!confirm('Создать новый акт? Все сохранённые данные черновика будут удалены.'))return;beginFreshAct()}
+function beginFreshAct(){
+  SUPPRESS_DRAFT_SAVE=true;
+  try{cancelActiveVoice();clearAllDrafts();resetStateForNewAct();setAutofillToday();STATE.id=genId();renderAll();showStep(1);setStartStatus('Создан новый акт: '+STATE.id,false)}
+  catch(e){console.error(e);alert('Не удалось создать новый акт: '+(e&&e.message?e.message:e));setStartStatus('Ошибка создания нового акта.',true)}
+  finally{SUPPRESS_DRAFT_SAVE=false;saveDraft()}
+}
+function newActFromStart(){beginFreshAct()}
 function startAct(forceNew=false){STATE.type=ACT_KEY;if(forceNew){beginFreshAct();return}setAutofillToday();if(!STATE.id)STATE.id=genId();renderAll();showStep(1);saveDraft()}
 function newCleanAct(){if(confirm('Очистить текущий акт и начать заново?'))beginFreshAct()}
+function bindStartButtons(){
+  const byId=(id,fn)=>{const el=document.getElementById(id);if(el&&!el.dataset.bound){el.addEventListener('click',ev=>{ev.preventDefault();ev.stopPropagation();fn();});el.dataset.bound='1'}};
+  byId('btnNewActStart',newActFromStart);
+  byId('btnContinueDraftStart',continueDraft);
+  if(!document.documentElement.dataset.startDelegated){
+    document.addEventListener('click',ev=>{
+      const btn=ev.target&&ev.target.closest?ev.target.closest('[data-start-action]'):null;
+      if(!btn)return;
+      ev.preventDefault();ev.stopPropagation();
+      if(btn.dataset.startAction==='new')newActFromStart();
+      if(btn.dataset.startAction==='continue')continueDraft();
+    },true);
+    document.documentElement.dataset.startDelegated='1';
+  }
+}
+function refreshServiceWorker(){
+  if(!('serviceWorker' in navigator)||!location.protocol.startsWith('http'))return;
+  navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.update().catch(()=>{}))).catch(()=>{});
+}
 function typeTitleFull(){return (STATE.fields.act_title&&STATE.fields.act_title.trim())?STATE.fields.act_title.trim():DEFAULT_ACT_TITLE}
 function typeTitleForUi(){return typeTitleFull()}
 function showStep(i){STATE.type=ACT_KEY;STATE.step=Math.max(0,Math.min(STEPS.length-1,i));if(STATE.step===2)renderForm();document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('screen-'+STEPS[STATE.step]).classList.add('active');document.querySelector('.navbar').style.display=STATE.step===0?'none':'flex';const at=document.getElementById('appTitle');if(at)at.textContent=(STATE.step>0)?('Акт: '+typeTitleForUi()):'Электронный акт предпроектного осмотра объекта';updateProgress();setTimeout(initPads,80);setTimeout(initPads,350);window.scrollTo(0,0)}
@@ -486,7 +516,7 @@ select.compactSelect:focus{border-color:var(--choice-green);box-shadow:0 0 0 3px
 
 
 /* v0.2.6 UX */
-.start-actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}.start-actions .bigbtn{margin:0}
+.start-actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}.start-actions .bigbtn{margin:0}.start-actions button{cursor:pointer}.status#startStatus{margin-top:10px}
 .pageBadge{display:inline-flex;align-items:center;gap:6px;background:#EAF7F4;color:#174D44;border:1px solid rgba(42,157,143,.35);border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800;margin:4px 0 12px}
 .validationBox.pageError{display:none;background:#FFE8DF;border:1px solid #F0B39D;color:#64301F;border-radius:12px;padding:12px;margin:10px 0;font-size:13px}.validationBox.pageError ul{margin:6px 0 0 18px;padding:0}
 .field-tools{margin-top:8px}.voicebtn.stop{border-color:#D65A31;color:#D65A31}.clearfield{border-color:#9DB0BC;color:#42515A}.material-comment{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}.material-comment textarea{min-height:70px}
@@ -498,12 +528,43 @@ function emailReport(){if(!validateBeforeOutput())return;saveFormValues();let to
 function buildTextReport(){let lines=[`Акт: ${STATE.id}`,`Название акта: ${typeTitleFull()}`,`Дата: ${val('act_date')}`,`Адрес: ${val('address')}`,`GPS: ${val('gps')}`];schemaFor(STATE.type).forEach(sec=>{lines.push('\n'+sec.section);sec.fields.forEach(f=>lines.push(stripHtml(rowField(f))))});if(STATE.photos.length){lines.push('\nФотофиксация');STATE.photos.forEach((p,i)=>lines.push(`Фото ${i+1}: ${p.note||'без пояснения'}`))}return lines.join('\n')}
 function stripHtml(s){const d=document.createElement('div');d.innerHTML=s;return d.textContent.replace(/\s+/g,' ').trim()}
 function draftHasContent(){return !!(STATE.id||Object.keys(STATE.fields||{}).length||Object.keys(STATE.checks||{}).length||(STATE.photos&&STATE.photos.length)||STATE.sketch)}
-function readDraftRaw(){for(const key of DRAFT_KEYS){try{const raw=localStorage.getItem(key);if(raw)return {key,raw}}catch(e){}}return null}
-function normalizeLoadedDraft(d){resetStateForNewAct();Object.assign(STATE,d||{});STATE.type=ACT_KEY;STATE.fields=STATE.fields&&typeof STATE.fields==='object'?STATE.fields:{};STATE.checks=STATE.checks&&typeof STATE.checks==='object'?STATE.checks:{};STATE.photos=Array.isArray(STATE.photos)?STATE.photos:[];STATE.signs=STATE.signs&&typeof STATE.signs==='object'?STATE.signs:{};STATE.formPage=Math.max(0,Number(STATE.formPage)||0);STATE.step=Math.max(0,Math.min(STEPS.length-1,Number(STATE.step)||1));}
-function saveDraft(){if(SUPPRESS_DRAFT_SAVE||!draftHasContent())return;try{STATE.type=ACT_KEY;localStorage.setItem(DRAFT_KEYS[0],JSON.stringify(STATE))}catch(e){}}
-function loadDraft(silent=false,opts={}){try{const found=readDraftRaw();if(!found){if(!silent)alert('Сохранённый черновик не найден.');STATE.type=ACT_KEY;return false}const d=JSON.parse(found.raw);const savedStep=Math.max(1,Math.min(STEPS.length-1,Number(d.step)||1));normalizeLoadedDraft(d);renderAll();showStep((silent||opts.stayOnStart)?0:savedStep);return true}catch(e){STATE.type=ACT_KEY;if(!silent)alert('Ошибка загрузки черновика. Черновик повреждён или сохранён старой несовместимой версией.');return false}}
-function continueDraft(){loadDraft(false,{stayOnStart:false})}
-window.addEventListener('beforeunload',()=>{if(!SUPPRESS_DRAFT_SAVE&&STATE.step>0)saveDraft()});if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('service-worker.js').catch(()=>{});init();
+function readDraftRaw(){
+  const errors=[];
+  for(const key of DRAFT_KEYS){
+    try{const raw=localStorage.getItem(key);if(!raw)continue;const data=JSON.parse(raw);return {key,raw,data}}
+    catch(e){errors.push(key)}
+  }
+  try{
+    for(let i=0;i<localStorage.length;i++){
+      const key=localStorage.key(i)||'';
+      if(DRAFT_KEYS.includes(key))continue;
+      if(!/^rson[_-]eact/i.test(key)&&!/^rson-eact/i.test(key))continue;
+      const raw=localStorage.getItem(key);if(!raw)continue;
+      try{return {key,raw,data:JSON.parse(raw)}}catch(e){errors.push(key)}
+    }
+  }catch(e){}
+  return errors.length?{key:null,raw:null,data:null,errors}:null;
+}
+function normalizeLoadedDraft(d){resetStateForNewAct();Object.assign(STATE,d||{});STATE.type=ACT_KEY;STATE.fields=STATE.fields&&typeof STATE.fields==='object'?STATE.fields:{};STATE.checks=STATE.checks&&typeof STATE.checks==='object'?STATE.checks:{};STATE.photos=Array.isArray(STATE.photos)?STATE.photos:[];STATE.signs=STATE.signs&&typeof STATE.signs==='object'?STATE.signs:{};STATE.formPage=Math.max(0,Number(STATE.formPage)||0);STATE.step=Math.max(0,Math.min(STEPS.length-1,Number(STATE.step)||1));if(!STATE.id)STATE.id=genId();}
+function saveDraft(){if(SUPPRESS_DRAFT_SAVE||!draftHasContent())return;try{STATE.type=ACT_KEY;STATE.savedAt=new Date().toISOString();localStorage.setItem(DRAFT_KEYS[0],JSON.stringify(STATE))}catch(e){setStartStatus('Черновик не сохранён: браузер запретил localStorage.',true)}}
+function loadDraft(silent=false,opts={}){
+  try{
+    const found=readDraftRaw();
+    if(!found||!found.data){
+      if(!silent){
+        const msg=found&&found.errors&&found.errors.length?'Черновик найден, но повреждён. Создайте новый акт.':'Сохранённый черновик не найден.';
+        alert(msg);setStartStatus(msg,true);
+      }
+      STATE.type=ACT_KEY;return false;
+    }
+    const savedStep=Math.max(1,Math.min(STEPS.length-1,Number(found.data.step)||1));
+    normalizeLoadedDraft(found.data);renderAll();showStep((silent||opts.stayOnStart)?0:savedStep);saveDraft();
+    setStartStatus('Открыт черновик: '+STATE.id+' ('+found.key+')',false);return true;
+  }catch(e){STATE.type=ACT_KEY;console.error(e);if(!silent){alert('Ошибка загрузки черновика: '+(e&&e.message?e.message:e));setStartStatus('Ошибка загрузки черновика.',true)}return false}
+}
+function continueDraft(){return loadDraft(false,{stayOnStart:false})}
+window.newActFromStart=newActFromStart;window.continueDraft=continueDraft;window.beginFreshAct=beginFreshAct;window.startAct=startAct;window.newCleanAct=newCleanAct;
+window.addEventListener('beforeunload',()=>{if(!SUPPRESS_DRAFT_SAVE&&STATE.step>0)saveDraft()});if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('service-worker.js').then(r=>{r.update().catch(()=>{})}).catch(()=>{});init();
 
 </script>
 </body>
