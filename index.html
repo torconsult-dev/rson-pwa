@@ -156,6 +156,12 @@ input[data-phone],input[data-email]{font-variant-numeric:tabular-nums}
 .fastnote{padding:10px;border:1px dashed var(--mint);border-radius:12px;background:#F5FFFC;color:var(--choice-green-dark);font-size:13px;font-weight:700;margin:8px 0}
 .photo.placeholder{min-height:150px;text-align:center;padding:12px;color:var(--muted);font-size:13px}
 .jsonStatus{font-size:12px;color:var(--muted);margin-top:6px;min-height:18px}
+.savedActItem{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;margin:8px 0;box-shadow:var(--shadow)}
+.savedActItem b{color:#174D44}
+.savedActMeta{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.35}
+.savedActBtns{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.savedActBtns .minibtn{margin-top:0;flex:1;justify-content:center;min-width:120px}
+.savedEmpty{font-size:12px;color:var(--muted);padding:9px;border:1px dashed var(--line);border-radius:10px;background:#fff}
 
 </style>
 </head>
@@ -174,17 +180,22 @@ input[data-phone],input[data-email]{font-variant-numeric:tabular-nums}
     <ul><li>Заполняйте страницы сверху вниз. Дата, индивидуальный номер объекта и QR-код формируются автоматически.</li><li>Переход «Далее» доступен только после заполнения обязательных полей текущей страницы.</li><li>Для GPS, фото и надиктовки разрешите доступ к геолокации, камере и микрофону. При отказе все поля можно заполнить вручную.</li></ul>
     <h4>Фото</h4>
     <p>Максимум — <b>20 фото на один акт</b>. Один исходный файл — <b>до 15 МБ</b>; для устойчивого формирования PDF желательно 1–5 МБ на фото. Фото хранятся в IndexedDB устройства, а не в localStorage.</p>
+    <h4>Что такое JSON</h4>
+    <p><b>JSON</b> — это резервная копия черновика акта в виде обычного файла. Простыми словами: это «чемодан с данными» — текст, выбранные варианты, подписи, эскиз и фото. PDF нужен для чтения и отправки готового акта, а JSON — чтобы восстановить акт и продолжить редактирование.</p>
     <h4>Работа без интернета</h4>
-    <p>Сначала один раз откройте приложение по HTTPS при наличии интернета в поддерживаемом браузере. После загрузки оно сохраняется локально и может открываться без сети на этом же устройстве. Для надёжности перед выездом откройте экран «Резервная копия» и нажмите «Проверить наличие фото в IndexedDB».</p>
-    <h4>Как отправлять данные</h4>
-    <p>Готовый акт отправляйте как PDF через кнопку «Печать / PDF». Если акт нужно продолжить на другом устройстве или передать с фото для доработки, сохраните JSON на экране «Резервная копия» и отправьте этот файл. Если интернета нет, сохраните PDF/JSON на устройстве и отправьте позже.</p>
+    <p>Сначала один раз откройте приложение по HTTPS при наличии интернета в поддерживаемом браузере. После загрузки оно сохраняется локально и может открываться без сети на этом же устройстве. Удобный вариант для телефона — добавить приложение на главный экран: на iPhone в Safari нажмите «Поделиться» → «На экран Домой»; на Android в Chrome нажмите меню ⋮ → «Добавить на главный экран» / «Установить приложение».</p>
+    <p>Перед выездом откройте приложение через иконку, зайдите в «Резервная копия / восстановление» и проверьте офлайн-режим и фото в IndexedDB. На объекте без связи акт можно заполнить, сохранить на телефоне и позже передать при появлении интернета.</p>
+    <h4>Как сохранять и отправлять данные</h4>
+    <p>Для готового акта используйте PDF. Для резервной копии и переноса используйте JSON. Если интернета нет, нажмите «Сохранить акт на телефоне» на экране резервной копии — акт останется в списке «Сохранённые акты на телефоне». Когда интернет появится, откройте сохранённый акт, сформируйте PDF или скачайте JSON и отправьте файл через почту, мессенджер или облако.</p>
+    <div class="warnline">Важно: сохранённые акты хранятся локально в браузере на конкретном телефоне. Если очистить данные сайта/браузера или удалить приложение с главного экрана, они могут быть потеряны. После обследования дополнительно скачайте JSON и/или PDF, когда появится интернет.</div>
     <h4>Кнопки внизу первой страницы</h4>
-    <div class="miniTable"><div class="miniRow"><b>Новый акт</b> — очищает текущий черновик и начинает заполнение с нуля.</div><div class="miniRow"><b>Продолжить черновик</b> — открывает ранее сохранённый акт на этом устройстве.</div><div class="miniRow"><b>Быстрый режим: без фото / фото позже</b> — позволяет заполнить акт без обязательной фотофиксации и добавить фото позднее.</div><div class="miniRow"><b>Резервная копия / восстановление</b> — сохраняет JSON, восстанавливает JSON и проверяет наличие фото в IndexedDB.</div></div>
+    <div class="miniTable"><div class="miniRow"><b>Новый акт</b> — очищает текущий черновик и начинает заполнение с нуля.</div><div class="miniRow"><b>Продолжить черновик</b> — открывает последний сохранённый черновик на этом устройстве.</div><div class="miniRow"><b>Быстрый режим: без фото / фото позже</b> — позволяет заполнить акт без обязательной фотофиксации и добавить фото позднее.</div><div class="miniRow"><b>Резервная копия / восстановление</b> — сохраняет JSON, восстанавливает JSON, проверяет фото и показывает сохранённые акты на телефоне.</div><div class="miniRow"><b>Сохранённые акты на телефоне</b> — открывает список актов, сохранённых без интернета для последующей передачи.</div></div>
   </div>
   <button class="bigbtn warn" onclick="newAct()">🆕 Новый акт</button>
   <button class="bigbtn secondary" onclick="continueDraft()">📂 Продолжить черновик</button>
   <button class="bigbtn secondary" onclick="quickActNoPhoto()">⚡ Быстрый режим: без фото / фото позже</button>
   <button class="bigbtn secondary" onclick="openBackupScreen()">💾 Резервная копия / восстановление</button>
+  <button class="bigbtn secondary" onclick="openSavedActsScreen()">📱 Сохранённые акты на телефоне</button>
   <input id="draftImportInput" type="file" accept="application/json,.json" style="display:none" onchange="handleDraftImport(event)">
   <div class="jsonStatus" id="jsonStatus_start">Резервная копия JSON доступна на отдельном экране.</div>
   <div class="devnote">Код приложения открытый. Репозиторий: https://github.com/torconsult-dev/rson-pwa</div>
@@ -202,12 +213,21 @@ input[data-phone],input[data-email]{font-variant-numeric:tabular-nums}
     </div>
     <div class="jsonStatus" id="jsonStatus_backup">JSON нужен для переноса черновика между устройствами или для резервной копии.</div>
   </div>
+  <div class="card">
+    <b>Сохранённые акты на телефоне</b>
+    <div class="hint">Эти акты хранятся локально в IndexedDB и доступны без интернета на этом устройстве. Когда появится интернет, откройте нужный акт, сформируйте PDF или скачайте JSON для передачи.</div>
+    <div class="toolrow">
+      <button class="minibtn" type="button" onclick="saveActOffline()">📱 Сохранить текущий акт на телефоне</button>
+      <button class="minibtn" type="button" onclick="renderSavedActsList()">📋 Обновить список</button>
+    </div>
+    <div id="savedActsList" class="savedActsList"><div class="savedEmpty">Список ещё не проверялся.</div></div>
+  </div>
   <div class="backupGrid">
     <div class="backupCard"><b>Черновик в localStorage</b><div class="backupStatus" id="backupDraftInfo">Проверка не выполнялась.</div></div>
     <div class="backupCard"><b>Фото в IndexedDB</b><div class="backupStatus" id="backupPhotoInfo">Проверка не выполнялась.</div></div>
     <div class="backupCard"><b>Офлайн-режим</b><div class="backupStatus" id="backupOfflineInfo">Проверка не выполнялась.</div></div>
   </div>
-  <div class="hint">Для работы без интернета сначала откройте приложение один раз при наличии сети. После установки service worker форма, черновики и фото будут доступны локально на этом устройстве.</div>
+  <div class="hint">Для работы без интернета сначала откройте приложение один раз при наличии сети, затем добавьте иконку на главный экран телефона. После установки service worker форма, черновики, фото и сохранённые акты будут доступны локально на этом устройстве.</div>
 </div>
 <div id="screen-cover" class="screen">
   <div class="sectitle">1. Первая страница акта</div><div class="secsub">Идентификатор, QR-код и основные данные объекта. Заполните поля сверху вниз.</div>
@@ -230,8 +250,8 @@ input[data-phone],input[data-email]{font-variant-numeric:tabular-nums}
   <button class="bigbtn" onclick="printReport()">🖨 Печать / Сохранить как PDF</button>
   <button class="bigbtn secondary" onclick="openReportWindow()">📄 Открыть акт для PDF</button>
   <button class="bigbtn secondary" onclick="emailReport()">✉️ Отправить текстовую часть</button>
-  <div class="toolrow draftio"><button class="minibtn" type="button" onclick="exportDraftJson()">📤 Экспорт черновика JSON</button><button class="minibtn" type="button" onclick="document.getElementById('draftImportInput').click()">📥 Импорт черновика JSON</button></div>
-  <div class="jsonStatus" id="jsonStatus_sign">Экспорт JSON сохраняет текст, подписи, эскиз и фото из IndexedDB в один файл.</div>
+  <div class="toolrow draftio"><button class="minibtn" type="button" onclick="exportDraftJson()">📤 Экспорт черновика JSON</button><button class="minibtn" type="button" onclick="document.getElementById('draftImportInput').click()">📥 Импорт черновика JSON</button><button class="minibtn" type="button" onclick="saveActOffline()">📱 Сохранить акт на телефоне</button><button class="minibtn" type="button" onclick="openSavedActsScreen()">📋 Сохранённые акты</button></div>
+  <div class="jsonStatus" id="jsonStatus_sign">JSON сохраняет текст, подписи, эскиз и фото. Кнопка «Сохранить акт на телефоне» оставляет копию в IndexedDB для передачи позже.</div>
   <button class="bigbtn warn" onclick="newCleanAct()">Новый акт / очистить</button>
 </div>
 <div class="navbar"><button class="back" onclick="backStep()">‹ Назад</button><button class="next" onclick="nextStep()">Далее ›</button></div>
@@ -247,6 +267,7 @@ const DRAFT_KEY='rson_eact_one_act_v0_2_5_3';
 const LEGACY_DRAFT_KEYS=['rson_eact_one_act_v0_2_5_2','rson_eact_one_act_v0_2_5_1','rson_eact_one_act_v0_2_5','rson_eact_one_act_v0_2_4','rson_eact_one_act_v0_2_3','rson_eact_one_act_v0_2_2','rson_eact_one_act_v0_2_1','rson_eact_v0_2_1','rson_eact_v0_1_5_1','rson_eact_v0_1_5'];
 const PHOTO_DB_NAME='rson_eact_one_act_photos_v1';
 const PHOTO_STORE_NAME='photos';
+const ACT_STORE_NAME='saved_acts';
 const PHOTO_SCOPE='rson_eact_one_act_current';
 const PHOTO_CACHE={};
 let PHOTO_RENDER_LOADING=false;
@@ -350,12 +371,16 @@ const PhotoStore={
     if(this.db)return Promise.resolve(this.db);
     return new Promise((resolve,reject)=>{
       if(!('indexedDB' in window)){reject(new Error('IndexedDB недоступен'));return}
-      const req=indexedDB.open(PHOTO_DB_NAME,1);
+      const req=indexedDB.open(PHOTO_DB_NAME,2);
       req.onupgradeneeded=e=>{
         const db=e.target.result;
         if(!db.objectStoreNames.contains(PHOTO_STORE_NAME)){
           const st=db.createObjectStore(PHOTO_STORE_NAME,{keyPath:'id'});
           st.createIndex('scope','scope',{unique:false});
+        }
+        if(!db.objectStoreNames.contains(ACT_STORE_NAME)){
+          const st=db.createObjectStore(ACT_STORE_NAME,{keyPath:'id'});
+          st.createIndex('savedAt','savedAt',{unique:false});
         }
       };
       req.onsuccess=()=>{this.db=req.result;resolve(this.db)};
@@ -367,6 +392,12 @@ const PhotoStore={
   async listScope(){const db=await this.open();const tx=db.transaction(PHOTO_STORE_NAME,'readonly');const store=tx.objectStore(PHOTO_STORE_NAME);if(store.indexNames&&store.indexNames.contains('scope'))return await idbRequest(store.index('scope').getAll(PHOTO_SCOPE));return await idbRequest(store.getAll())},
   async del(id){if(!id)return;const db=await this.open();const tx=db.transaction(PHOTO_STORE_NAME,'readwrite');tx.objectStore(PHOTO_STORE_NAME).delete(id);await txDone(tx)},
   async clear(){const db=await this.open();const tx=db.transaction(PHOTO_STORE_NAME,'readwrite');tx.objectStore(PHOTO_STORE_NAME).clear();await txDone(tx)}
+};
+const SavedActStore={
+  async put(record){const db=await PhotoStore.open();const tx=db.transaction(ACT_STORE_NAME,'readwrite');tx.objectStore(ACT_STORE_NAME).put(record);await txDone(tx)},
+  async get(id){const db=await PhotoStore.open();const tx=db.transaction(ACT_STORE_NAME,'readonly');return await idbRequest(tx.objectStore(ACT_STORE_NAME).get(id))},
+  async list(){const db=await PhotoStore.open();const tx=db.transaction(ACT_STORE_NAME,'readonly');const arr=await idbRequest(tx.objectStore(ACT_STORE_NAME).getAll());return (arr||[]).sort((a,b)=>String(b.savedAt||'').localeCompare(String(a.savedAt||'')))},
+  async del(id){const db=await PhotoStore.open();const tx=db.transaction(ACT_STORE_NAME,'readwrite');tx.objectStore(ACT_STORE_NAME).delete(id);await txDone(tx)}
 };
 function readFileAsDataURL(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(r.error||new Error('Ошибка чтения файла'));r.readAsDataURL(file)})}
 function stripPhotoData(photo){const p=Object.assign({},photo||{});delete p.data;delete p.url;delete p.scope;return p}
@@ -394,7 +425,7 @@ async function newAct(){if(!confirm('«Новый акт» удалит теку
 async function newCleanAct(){if(confirm('Очистить текущий акт и начать заново?')){wipeStorage();try{await PhotoStore.clear()}catch(_){ }location.reload()}}
 function typeTitleFull(){return (STATE.fields.act_title&&STATE.fields.act_title.trim())?STATE.fields.act_title.trim():DEFAULT_ACT_TITLE}
 function typeTitleForUi(){return typeTitleFull()}
-function showStep(i){STATE.type=ACT_KEY;STATE.step=Math.max(0,Math.min(STEPS.length-1,i));document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const stepName=STEPS[STATE.step];document.getElementById('screen-'+stepName).classList.add('active');document.querySelector('.navbar').style.display=STATE.step===0?'none':'flex';const at=document.getElementById('appTitle');if(at)at.textContent=(STATE.step>0)?(stepName==='backup'?'Резервная копия':('Акт: '+typeTitleForUi())):'Электронный акт предпроектного осмотра объекта';updateProgress();if(stepName==='backup')setTimeout(renderBackupStatus,80);setTimeout(initPads,80);setTimeout(initPads,350);window.scrollTo(0,0)}
+function showStep(i){STATE.type=ACT_KEY;STATE.step=Math.max(0,Math.min(STEPS.length-1,i));document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const stepName=STEPS[STATE.step];document.getElementById('screen-'+stepName).classList.add('active');document.querySelector('.navbar').style.display=STATE.step===0?'none':'flex';const at=document.getElementById('appTitle');if(at)at.textContent=(STATE.step>0)?(stepName==='backup'?'Резервная копия':('Акт: '+typeTitleForUi())):'Электронный акт предпроектного осмотра объекта';updateProgress();if(stepName==='backup'){setTimeout(renderBackupStatus,80);setTimeout(renderSavedActsList,120);}setTimeout(initPads,80);setTimeout(initPads,350);window.scrollTo(0,0)}
 function nextStep(){if(STATE.step===0){startAct();return}if(STEPS[STATE.step]==='backup'&&BACKUP_RETURN_STEP!==null){returnFromBackup();return}saveFormValues();const cur=STEPS[STATE.step];const miss=pageMissing(cur);if(miss.length){showPageErrors(cur,miss);return}clearPageErrors(cur);if(STATE.step<STEPS.length-1){showStep(STATE.step+1);saveDraft()}}
 function backStep(){if(STEPS[STATE.step]==='backup'&&BACKUP_RETURN_STEP!==null){saveFormValues();clearPageErrors(STEPS[STATE.step]);const to=BACKUP_RETURN_STEP;BACKUP_RETURN_STEP=null;showStep(to);return}if(STATE.step>0){saveFormValues();clearPageErrors(STEPS[STATE.step]);showStep(STATE.step-1)}}
 function pageMissing(stepName){if(stepName==='cover')return checkFieldList(commonCover,'Первая страница');if(stepName.indexOf('form')===0){const i=+stepName.slice(4);const sec=FORM_SECTIONS[i];return sec?checkFieldList(sec.fields,sec.section):[]}return []}
@@ -607,6 +638,12 @@ select.compactSelect:focus{border-color:var(--choice-green);box-shadow:0 0 0 3px
 .fastnote{padding:10px;border:1px dashed var(--mint);border-radius:12px;background:#F5FFFC;color:var(--choice-green-dark);font-size:13px;font-weight:700;margin:8px 0}
 .photo.placeholder{min-height:150px;text-align:center;padding:12px;color:var(--muted);font-size:13px}
 .jsonStatus{font-size:12px;color:var(--muted);margin-top:6px;min-height:18px}
+.savedActItem{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;margin:8px 0;box-shadow:var(--shadow)}
+.savedActItem b{color:#174D44}
+.savedActMeta{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.35}
+.savedActBtns{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.savedActBtns .minibtn{margin-top:0;flex:1;justify-content:center;min-width:120px}
+.savedEmpty{font-size:12px;color:var(--muted);padding:9px;border:1px dashed var(--line);border-radius:10px;background:#fff}
 
 </style></head><body><div id="printRoot" style="display:block">${reportHtml}</div><button onclick="window.print()" style="position:fixed;bottom:16px;left:16px;right:16px;padding:16px;border:0;border-radius:16px;background:#1C7293;color:#fff;font-weight:800;font-size:18px">Печать / PDF</button></body></html>`);w.document.close()}
 function emailReport(){if(!validateBeforeOutput())return;saveFormValues();let to=[];if(document.getElementById('sendDefault').checked)to.push('pavel.rus178@yandex.ru');const extra=document.getElementById('extraMail').value.trim();if(extra&&!isValidEmail(extra)){alert('Дополнительная почта указана неверно. Пример: name@example.ru');return}if(extra)to.push(extra);if(!to.length){alert('Не выбрана почта для отправки.');return}const subject=`Акт обследования ${STATE.id} ${typeTitleFull()}`;const body=buildTextReport()+`\n\nПолный акт с фото, эскизом, подписями и QR формируется через PDF.`;location.href=`mailto:${to.join(',')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`}
@@ -615,6 +652,7 @@ function stripHtml(s){const d=document.createElement('div');d.innerHTML=s;return
 
 
 function openBackupScreen(){saveFormValues();BACKUP_RETURN_STEP=STATE.step;const idx=STEPS.indexOf('backup');if(idx>=0)showStep(idx);else alert('Экран резервной копии недоступен.')}
+function openSavedActsScreen(){openBackupScreen();setTimeout(renderSavedActsList,120)}
 function returnFromBackup(){const to=(BACKUP_RETURN_STEP!==null&&BACKUP_RETURN_STEP!==undefined)?BACKUP_RETURN_STEP:(STATE.id?STEPS.indexOf('cover'):0);BACKUP_RETURN_STEP=null;showStep(to>=0?to:0)}
 function setJsonStatus(msg){['jsonStatus_start','jsonStatus_backup','jsonStatus_sign'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=msg})}
 function setBackupText(id,html){const el=document.getElementById(id);if(el)el.innerHTML=html}
@@ -649,9 +687,19 @@ async function renderOfflineStatus(){
   }else parts.push('<span class="backupWarn">Cache API недоступен.</span>');
   setBackupText('backupOfflineInfo',parts.join('<br>'));
 }
-function updateOfflineBanner(){const el=document.getElementById('offlineBanner');if(!el)return;if(navigator.onLine){el.style.display='none';el.textContent=''}else{el.style.display='block';el.textContent='Автономный режим: приложение работает без интернета. Черновик и фото сохраняются локально на этом устройстве.'}}
-async function exportDraftJson(){try{saveFormValues();await ensurePhotoCache();const state=stateForStorage();const photos=(state.photos||[]).map(p=>Object.assign({},p,{data:PHOTO_CACHE[p.id]||''}));const payload={app:'RSON_EACT_ONE_ACT',version:APP_VERSION,exportedAt:new Date().toISOString(),state,photos};const name=(STATE.id||'rson_draft')+'_v0_2_5_3.json';const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);setJsonStatus('JSON-черновик сформирован. Файл сохранён через загрузки браузера.')}catch(e){setJsonStatus('Ошибка экспорта JSON. Сначала сохраните/обновите черновик и повторите.');alert('Ошибка экспорта JSON: '+(e.message||e))}}
-async function handleDraftImport(e){const file=e.target.files&&e.target.files[0];e.target.value='';if(!file)return;try{const text=await file.text();const payload=JSON.parse(text);const imported=payload.state||payload;if(!imported||typeof imported!=='object'||!imported.fields)throw new Error('Файл не похож на JSON-черновик акта');await PhotoStore.clear();Object.keys(PHOTO_CACHE).forEach(k=>delete PHOTO_CACHE[k]);const statePhotos=Array.isArray(imported.photos)?imported.photos:[];const embedded=Array.isArray(payload.photos)?payload.photos:statePhotos;const dataById=new Map();embedded.forEach(p=>{if(p&&p.id&&p.data)dataById.set(p.id,p.data)});const normalizedPhotos=[];for(let i=0;i<statePhotos.length;i++){const src=Object.assign({},statePhotos[i]||{});if(!src.id)src.id=(embedded[i]&&embedded[i].id)||makePhotoId();const data=src.data||dataById.get(src.id)||(embedded[i]&&embedded[i].data)||'';const meta=stripPhotoData(src);normalizedPhotos.push(meta);if(data){PHOTO_CACHE[meta.id]=data;await PhotoStore.put(Object.assign({},meta,{data}))}}resetState();Object.assign(STATE,imported);STATE.type=ACT_KEY;STATE.fields=STATE.fields||{};STATE.checks=STATE.checks||{};STATE.signs=STATE.signs||{};STATE.photos=normalizedPhotos;await normalizeLoadedDraftPhotos();saveDraft();renderAll();showStep(STATE.id?1:0);setJsonStatus('JSON-черновик импортирован. Фото сохранены в IndexedDB.')}catch(err){setJsonStatus('Ошибка импорта JSON. Проверьте файл черновика.');alert('Ошибка импорта JSON: '+(err.message||err))}}
+function updateOfflineBanner(){const el=document.getElementById('offlineBanner');if(!el)return;if(navigator.onLine){el.style.display='none';el.textContent=''}else{el.style.display='block';el.textContent='Автономный режим: приложение работает без интернета. Черновик, фото и сохранённые акты хранятся локально на этом устройстве.'}}
+async function buildDraftPayload(){saveFormValues();if(!STATE.id)STATE.id=genId();STATE.type=ACT_KEY;await ensurePhotoCache();const state=stateForStorage();const photos=(state.photos||[]).map(p=>Object.assign({},p,{data:PHOTO_CACHE[p.id]||''}));return {app:'RSON_EACT_ONE_ACT',version:APP_VERSION,exportedAt:new Date().toISOString(),state,photos}}
+function downloadJsonPayload(payload,name){const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+function safeFilePart(s){return String(s||'rson_act').replace(/[^A-Za-zА-Яа-яЁё0-9_-]+/g,'_').slice(0,80)||'rson_act'}
+function formatDateTimeRu(iso){try{return new Date(iso).toLocaleString('ru-RU',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}catch(_){return iso||''}}
+async function exportDraftJson(){try{const payload=await buildDraftPayload();saveDraft();const name=(STATE.id||'rson_draft')+'_v0_2_5_3.json';downloadJsonPayload(payload,name);setJsonStatus('JSON-черновик сформирован. Файл сохранён через загрузки браузера.')}catch(e){setJsonStatus('Ошибка экспорта JSON. Сначала сохраните/обновите черновик и повторите.');alert('Ошибка экспорта JSON: '+(e.message||e))}}
+async function importDraftPayload(payload,statusText){const imported=payload.state||payload;if(!imported||typeof imported!=='object'||!imported.fields)throw new Error('Файл не похож на JSON-черновик акта');await PhotoStore.clear();Object.keys(PHOTO_CACHE).forEach(k=>delete PHOTO_CACHE[k]);const statePhotos=Array.isArray(imported.photos)?imported.photos:[];const embedded=Array.isArray(payload.photos)?payload.photos:statePhotos;const dataById=new Map();embedded.forEach(p=>{if(p&&p.id&&p.data)dataById.set(p.id,p.data)});const normalizedPhotos=[];for(let i=0;i<statePhotos.length;i++){const src=Object.assign({},statePhotos[i]||{});if(!src.id)src.id=(embedded[i]&&embedded[i].id)||makePhotoId();const data=src.data||dataById.get(src.id)||(embedded[i]&&embedded[i].data)||'';const meta=stripPhotoData(src);normalizedPhotos.push(meta);if(data){PHOTO_CACHE[meta.id]=data;await PhotoStore.put(Object.assign({},meta,{data}))}}resetState();Object.assign(STATE,imported);STATE.type=ACT_KEY;STATE.fields=STATE.fields||{};STATE.checks=STATE.checks||{};STATE.signs=STATE.signs||{};STATE.photos=normalizedPhotos;await normalizeLoadedDraftPhotos();saveDraft();renderAll();showStep(STATE.id?1:0);setJsonStatus(statusText||'JSON-черновик импортирован. Фото сохранены в IndexedDB.')}
+async function handleDraftImport(e){const file=e.target.files&&e.target.files[0];e.target.value='';if(!file)return;try{const text=await file.text();const payload=JSON.parse(text);await importDraftPayload(payload,'JSON-черновик импортирован. Фото сохранены в IndexedDB.')}catch(err){setJsonStatus('Ошибка импорта JSON. Проверьте файл черновика.');alert('Ошибка импорта JSON: '+(err.message||err))}}
+async function saveActOffline(){try{const payload=await buildDraftPayload();saveDraft();const st=payload.state||{};const f=st.fields||{};const record={id:st.id||STATE.id||genId(),savedAt:new Date().toISOString(),title:f.act_title||DEFAULT_ACT_TITLE,address:f.address||'',actDate:f.act_date||STATE.date||'',photoCount:Array.isArray(st.photos)?st.photos.length:0,payload};await SavedActStore.put(record);setJsonStatus('Акт сохранён на телефоне. Он доступен без интернета в списке сохранённых актов.');await renderSavedActsList();alert('Акт сохранён на телефоне. Когда появится интернет, откройте его из списка и отправьте PDF или JSON.')}catch(e){setJsonStatus('Ошибка сохранения акта на телефоне.');alert('Ошибка сохранения акта на телефоне: '+(e.message||e))}}
+async function renderSavedActsList(){const box=document.getElementById('savedActsList');if(!box)return;try{const list=await SavedActStore.list();if(!list.length){box.innerHTML='<div class="savedEmpty">Сохранённых актов пока нет. Заполните акт и нажмите «Сохранить текущий акт на телефоне».</div>';return}box.innerHTML='';list.forEach(rec=>{const item=document.createElement('div');item.className='savedActItem';const title=rec.title||DEFAULT_ACT_TITLE;const addr=rec.address?'<br>Адрес: '+esc(rec.address):'';item.innerHTML=`<b>${esc(title)}</b><div class="savedActMeta">№ ${esc(rec.id)}<br>Сохранён: ${esc(formatDateTimeRu(rec.savedAt))}<br>Фото: ${Number(rec.photoCount||0)}${addr}</div>`;const btns=document.createElement('div');btns.className='savedActBtns';const open=document.createElement('button');open.className='minibtn';open.type='button';open.textContent='Открыть';open.onclick=()=>openSavedAct(rec.id);const exp=document.createElement('button');exp.className='minibtn';exp.type='button';exp.textContent='Скачать JSON';exp.onclick=()=>exportSavedActJson(rec.id);const del=document.createElement('button');del.className='minibtn';del.type='button';del.textContent='Удалить';del.onclick=()=>deleteSavedAct(rec.id);btns.append(open,exp,del);item.appendChild(btns);box.appendChild(item)})}catch(e){box.innerHTML='<div class="savedEmpty">Не удалось открыть список сохранённых актов. Откройте приложение в обычном Safari/Chrome.</div>'}}
+async function openSavedAct(id){try{const rec=await SavedActStore.get(id);if(!rec||!rec.payload){alert('Сохранённый акт не найден.');return}if(STATE.id&&!confirm('Открыть сохранённый акт? Текущий черновик будет заменён.'))return;await importDraftPayload(rec.payload,'Сохранённый акт открыт. Можно сформировать PDF или скачать JSON.')}catch(e){alert('Не удалось открыть сохранённый акт: '+(e.message||e))}}
+async function exportSavedActJson(id){try{const rec=await SavedActStore.get(id);if(!rec||!rec.payload){alert('Сохранённый акт не найден.');return}const name=safeFilePart(rec.id)+'_v0_2_5_3.json';downloadJsonPayload(rec.payload,name);setJsonStatus('JSON сохранённого акта сформирован через загрузки браузера.')}catch(e){alert('Не удалось скачать JSON: '+(e.message||e))}}
+async function deleteSavedAct(id){if(!confirm('Удалить сохранённый акт с этого телефона?'))return;try{await SavedActStore.del(id);await renderSavedActsList();setJsonStatus('Сохранённый акт удалён с телефона.')}catch(e){alert('Не удалось удалить акт: '+(e.message||e))}}
 let STORAGE_WARNED=false;
 function stateForStorage(){const s=JSON.parse(JSON.stringify(STATE));s.type=ACT_KEY;s.photos=Array.isArray(s.photos)?s.photos.map(stripPhotoData):[];return s}
 function saveDraft(){try{STATE.type=ACT_KEY;localStorage.setItem(DRAFT_KEY,JSON.stringify(stateForStorage()));STORAGE_WARNED=false;const s=document.getElementById('storageWarn');if(s)s.style.display='none'}catch(e){if(!STORAGE_WARNED){STORAGE_WARNED=true;showStorageMessage('⚠ Память устройства переполнена. Фото уже вынесены в IndexedDB, поэтому уменьшите текст/эскиз или экспортируйте JSON-черновик.')}}}
