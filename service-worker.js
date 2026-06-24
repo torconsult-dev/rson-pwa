@@ -1,6 +1,6 @@
-// v0.2.5.5: телефон и E-mail на первой странице необязательны; перепроверка и инструкция; cache refresh.
+// v0.2.5.5: телефон и E-mail необязательны; для молниезащиты используется термин «проводник»; cache refresh.
 const CACHE='rson-eact-one-act-v0.2.5.5';
-const GUIDE_BUILD='v0.2.5.5-phone-email-optional-recheck-2026-06-24';
+const GUIDE_BUILD='v0.2.5.5-lightning-conductor-2026-06-24';
 const ASSETS=['./','./index.html','./Паспорт_объекта_app.html','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
