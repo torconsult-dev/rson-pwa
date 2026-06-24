@@ -90,6 +90,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--choice-g
 .next{background:linear-gradient(135deg,#1C7293,#2A9D8F)}.back{background:#fff}.sketchpad{height:360px;border:2px dashed var(--choice-green);background:#fff;box-shadow:inset 0 0 0 1px rgba(42,157,143,.08);touch-action:none;cursor:crosshair}
 .drawhint{background:#EAF7F4;color:#174D44;border-radius:10px;padding:8px 10px;font-weight:700}.toolrow .minibtn{min-height:38px}.minibtn.active{box-shadow:0 0 0 3px rgba(42,157,143,.14)}
 .friendlyStart{border-color:rgba(42,157,143,.35);background:#FBFEFD}.friendlyStart b{color:#174D44}.friendlyStart ul{margin:8px 0 0 18px;padding:0}.friendlyStart li{margin:4px 0;color:#43515A;font-size:13px}
+.startGuide{font-size:13px;line-height:1.38}.startGuide h3{margin:0 0 7px;font-size:16px;color:#174D44}.startGuide h4{margin:10px 0 4px;font-size:13px;color:#174D44}.startGuide p{margin:5px 0;color:#43515A}.startGuide ul{margin:6px 0 0 18px;padding:0}.startGuide li{margin:3px 0;color:#43515A}.startGuide .warnline{background:#FFF3E0;border-left:4px solid var(--orange);border-radius:8px;padding:8px 10px;margin:8px 0;color:#5A4A30;font-weight:800}.startGuide .miniTable{display:grid;grid-template-columns:1fr;gap:5px;margin-top:6px}.startGuide .miniRow{background:#fff;border:1px solid var(--line);border-radius:9px;padding:7px 9px}.startGuide .miniRow b{color:#174D44}
 @media(max-width:420px){.screen{padding-left:12px;padding-right:12px}.card,.field,.linebox{border-radius:12px;padding:12px}.sectitle{font-size:20px}.sketchpad{height:330px}.small2,.small3{grid-template-columns:1fr}.linerow,.linerow.kanalrow{grid-template-columns:28px 1fr}.linerow input,.linerow select{grid-column:2}.linerow span.code{grid-column:2}}
 
 
@@ -123,7 +124,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--choice-g
 select.compactSelect{min-height:46px}
 .field select.compactSelect{width:100%}
 input[data-phone],input[data-email]{font-variant-numeric:tabular-nums}
-/* v0.2.5.3: версия в шапке, select вместо плиток, голосовой ввод телефона/e-mail */
+/* v0.2.5.3: версия в шапке, select вместо плиток, телефон/e-mail вводятся вручную */
 .voicetools{margin-top:8px}
 .cmtblock{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
 .cmtblock textarea{min-height:70px;margin-top:6px}
@@ -164,7 +165,22 @@ input[data-phone],input[data-email]{font-variant-numeric:tabular-nums}
 <div id="offlineBanner" class="offlineBanner"></div>
 <div id="screen-start" class="screen active">
   <div class="hero"><div class="eyebrow">Пилотная PWA-форма · один акт</div><h2>Акт предпроектного осмотра объекта</h2><p>Заполняйте акт сверху вниз: первая страница, блоки по объекту, кабельные трассы, эскиз, фото и подписи. Название акта можно изменить вручную или надиктовать голосом.</p><div class="versionBadge">Версия v0.2.5.3</div></div>
-  <div class="card friendlyStart"><b>Как заполнять</b><ul><li><b>Новый акт</b> — полностью очищает черновик на этом устройстве и начинает чистое заполнение. <b>Продолжить черновик</b> — открывает ранее сохранённый акт.</li><li>Дата, индивидуальный номер объекта и QR-код формируются автоматически.</li><li>Переход «Далее» доступен только после заполнения обязательных полей текущей страницы.</li><li>Для GPS, фото и надиктовки разрешите доступ к геолокации, камере и микрофону; при отказе все поля можно заполнить вручную.</li><li>Полный акт с фото, эскизом, подписями и QR-кодом сохраняйте через «Печать / PDF».</li></ul></div>
+  <div class="card friendlyStart startGuide">
+    <h3>Инструкция перед началом работы</h3>
+    <div class="warnline">Внимание: работайте в обычном браузере, не во встроенном окне Telegram, WhatsApp, VK, почты и не в режиме «Инкогнито/Частный доступ».</div>
+    <h4>Поддерживаемые браузеры и ОС</h4>
+    <p><b>iPhone/iPad:</b> Safari, iOS/iPadOS 16 и выше. <b>Android:</b> Chrome, Edge или Samsung Internet, Android 10 и выше. <b>Windows 10/11:</b> Chrome или Edge. <b>macOS:</b> Safari или Chrome.</p>
+    <h4>Как заполнять акт</h4>
+    <ul><li>Заполняйте страницы сверху вниз. Дата, индивидуальный номер объекта и QR-код формируются автоматически.</li><li>Переход «Далее» доступен только после заполнения обязательных полей текущей страницы.</li><li>Для GPS, фото и надиктовки разрешите доступ к геолокации, камере и микрофону. При отказе все поля можно заполнить вручную.</li></ul>
+    <h4>Фото</h4>
+    <p>Максимум — <b>20 фото на один акт</b>. Один исходный файл — <b>до 15 МБ</b>; для устойчивого формирования PDF желательно 1–5 МБ на фото. Фото хранятся в IndexedDB устройства, а не в localStorage.</p>
+    <h4>Работа без интернета</h4>
+    <p>Сначала один раз откройте приложение по HTTPS при наличии интернета в поддерживаемом браузере. После загрузки оно сохраняется локально и может открываться без сети на этом же устройстве. Для надёжности перед выездом откройте экран «Резервная копия» и нажмите «Проверить наличие фото в IndexedDB».</p>
+    <h4>Как отправлять данные</h4>
+    <p>Готовый акт отправляйте как PDF через кнопку «Печать / PDF». Если акт нужно продолжить на другом устройстве или передать с фото для доработки, сохраните JSON на экране «Резервная копия» и отправьте этот файл. Если интернета нет, сохраните PDF/JSON на устройстве и отправьте позже.</p>
+    <h4>Кнопки внизу первой страницы</h4>
+    <div class="miniTable"><div class="miniRow"><b>Новый акт</b> — очищает текущий черновик и начинает заполнение с нуля.</div><div class="miniRow"><b>Продолжить черновик</b> — открывает ранее сохранённый акт на этом устройстве.</div><div class="miniRow"><b>Быстрый режим: без фото / фото позже</b> — позволяет заполнить акт без обязательной фотофиксации и добавить фото позднее.</div><div class="miniRow"><b>Резервная копия / восстановление</b> — сохраняет JSON, восстанавливает JSON и проверяет наличие фото в IndexedDB.</div></div>
+  </div>
   <button class="bigbtn warn" onclick="newAct()">🆕 Новый акт</button>
   <button class="bigbtn secondary" onclick="continueDraft()">📂 Продолжить черновик</button>
   <button class="bigbtn secondary" onclick="quickActNoPhoto()">⚡ Быстрый режим: без фото / фото позже</button>
@@ -234,6 +250,8 @@ const PHOTO_STORE_NAME='photos';
 const PHOTO_SCOPE='rson_eact_one_act_current';
 const PHOTO_CACHE={};
 let PHOTO_RENDER_LOADING=false;
+const MAX_PHOTOS_PER_ACT=20;
+const MAX_PHOTO_FILE_SIZE=15*1024*1024;
 let BACKUP_RETURN_STEP=null;
 let STEPS=['start','cover','extra','sign'];
 const commonCover=[
@@ -401,7 +419,7 @@ function renderField(f){
   const isCoord=/координат/i.test(f.label||'');
   if(isCoord)extra+=`<button class="gpsbtn" type="button" onclick="getGpsForField('${f.id}')">📍 Определить по GPS</button><div class="status" id="gpsStatus_${f.id}">Можно определить координаты автоматически по GPS или ввести вручную.</div>`;
   if(f.id==='address')extra+=`<button class="gpsbtn" type="button" onclick="getLocalityByGps()">🏘 Населённый пункт по GPS</button><div class="status" id="localityStatus">Можно определить населённый пункт автоматически или заполнить адрес вручную.</div>`;
-  const tools=f.type==='date'?clearBtn(f.id):(isPhone?voiceToolsFor('f_'+f.id,'Надиктовать телефон'):(isEmail?voiceToolsFor('f_'+f.id,'Надиктовать email'):(f.type==='text'?voiceButton(f.id):clearBtn(f.id))));
+  const tools=(f.type==='date'||isPhone||isEmail)?clearBtn(f.id):(f.type==='text'?voiceButton(f.id):clearBtn(f.id));
   return `<div class="field" id="field_${f.id}"><label class="q">${f.label}${f.req!==false?' <span class="req">*</span>':''}</label><div class="code">${f.id}</div><input id="f_${f.id}" type="${type}"${numeric}${emailAttr} data-field="${f.id}" placeholder="${placeholder}">${tools}${extra}</div>`}
  if(f.type==='gps'){return `<div class="field" id="field_${f.id}"><label class="q">${f.label}${f.req!==false?' <span class="req">*</span>':''}</label><div class="code">${f.id}</div><input id="f_${f.id}" data-field="${f.id}" type="text" placeholder="широта, долгота"><button class="gpsbtn" type="button" onclick="getGps()">📍 Координаты по GPS</button>${voiceButton(f.id)}<div class="status" id="gpsStatus">Можно заполнить автоматически по GPS или вручную.</div></div>`}
  if(f.type==='multi'){return `<div class="field" id="field_${f.id}"><label class="q">${f.label}${f.req!==false?' <span class="req">*</span>':''}</label><div class="code">${f.id}</div>${renderMultiDropdown(f.id,f.choices)}<div class="toolrow"><button class="minibtn vclear" type="button" onclick="clearMulti('${f.id}')">🧹 Очистить выбор</button></div>${f.choices.includes('Другое')?`<div class="optionalOther" data-other-input-for="${f.id}" data-other-values="Другое|Другой вариант"><input id="f_${f.id}_other" data-field="${f.id}_other" type="text" placeholder="уточнение, если требуется">${voiceButton(f.id+'_other')}</div>`:''}</div>`}
@@ -463,7 +481,7 @@ const Voice={rec:null,active:null,btn:null,st:null,timer:null,hadSpeech:false,SR
  clearField(elId){if(this.active===elId)this.stop();const el=document.getElementById(elId);if(!el)return;el.value='';el.dispatchEvent(new Event('input',{bubbles:true}));const st=document.getElementById('voiceStatus_'+elId);if(st){st.textContent='Поле очищено.';st.className='status'}saveDraft();updateProgress()}};
 window.Voice=Voice;
 function voiceToElement(elId,btn){Voice.start(elId,btn)}
-async function handlePhotos(e){const files=[...e.target.files].slice(0,20);for(const file of files){try{const id=makePhotoId();const data=await readFileAsDataURL(file);const meta={id,name:file.name||('photo_'+(STATE.photos.length+1)+'.jpg'),note:'',type:file.type||'image/jpeg',size:file.size||0,createdAt:new Date().toISOString()};PHOTO_CACHE[id]=data;await PhotoStore.put(Object.assign({},meta,{data}));STATE.photos.push(meta)}catch(err){showStorageMessage('⚠ Фото не удалось сохранить в IndexedDB. Попробуйте добавить меньше фото или открыть приложение в Safari/Chrome.')}}e.target.value='';renderPhotos();saveDraft();updateProgress()}
+async function handlePhotos(e){const selected=[...e.target.files];const room=Math.max(0,MAX_PHOTOS_PER_ACT-STATE.photos.length);let skipped=[];if(!room){e.target.value='';alert('В акт уже добавлено максимальное количество фото: '+MAX_PHOTOS_PER_ACT+'. Удалите лишние фото или создайте отдельный акт.');return}const files=selected.slice(0,room);if(selected.length>room)skipped.push('превышен лимит '+MAX_PHOTOS_PER_ACT+' фото на акт: не добавлено '+(selected.length-room));for(const file of files){if(file.size>MAX_PHOTO_FILE_SIZE){skipped.push((file.name||'фото')+' — больше 15 МБ');continue}try{const id=makePhotoId();const data=await readFileAsDataURL(file);const meta={id,name:file.name||('photo_'+(STATE.photos.length+1)+'.jpg'),note:'',type:file.type||'image/jpeg',size:file.size||0,createdAt:new Date().toISOString()};PHOTO_CACHE[id]=data;await PhotoStore.put(Object.assign({},meta,{data}));STATE.photos.push(meta)}catch(err){showStorageMessage('⚠ Фото не удалось сохранить в IndexedDB. Попробуйте добавить меньше фото или открыть приложение в Safari/Chrome.')}}e.target.value='';renderPhotos();saveDraft();updateProgress();if(skipped.length)alert('Часть фото не добавлена:\n- '+skipped.join('\n- '))}
 function renderPhotos(){const g=document.getElementById('photogrid');if(!g)return;g.innerHTML='';const fast=fastNoPhotoEnabled();if(fast&&!STATE.photos.length){const note=document.createElement('div');note.className='fastnote';note.textContent='Включён быстрый режим: акт можно сформировать без фото. Фото можно добавить позже через этот черновик или импорт JSON.';g.appendChild(note)}let missing=false;STATE.photos.forEach((p,i)=>{const src=photoSrc(p);if(!src)missing=true;const d=document.createElement('div');d.className='photoitem';d.innerHTML=`<div class="photo${src?'':' placeholder'}">${src?`<img src="${src}">`:'Фото хранится в IndexedDB и загружается…'}<button class="del" onclick="delPhoto(${i})">×</button></div><textarea class="photonote" id="photo_note_${i}" data-photo-note="${i}" placeholder="Пояснение к фото ${i+1}">${esc(p.note||'')}</textarea>${voiceToolsFor('photo_note_'+i,'Надиктовать пояснение')}`;g.appendChild(d)});const add=document.createElement('div');add.className='photo';add.innerHTML='<span style="font-size:34px;color:#B8C4CB">+</span>';add.onclick=()=>document.getElementById('photoInput').click();g.appendChild(add);const cb=document.getElementById('fastNoPhoto');if(cb)cb.checked=fast;if(missing&&!PHOTO_RENDER_LOADING){PHOTO_RENDER_LOADING=true;ensurePhotoCache().then(changed=>{PHOTO_RENDER_LOADING=false;if(changed)renderPhotos()})}}
 async function delPhoto(i){const p=STATE.photos[i];STATE.photos.splice(i,1);if(p&&p.id){delete PHOTO_CACHE[p.id];try{await PhotoStore.del(p.id)}catch(_){}}renderPhotos();saveDraft();updateProgress()}
 function renderSigns(){document.getElementById('signFields').innerHTML=['executor','customer','owner'].map(k=>`<div class="card"><b>${k==='executor'?'От Исполнителя / ООО «ТОР-Консалт»':k==='customer'?'От Заказчика':'От собственника здания/сооружения'}</b><input id="f_sign_name_${k}" data-field="sign_name_${k}" type="text" placeholder="должность / ФИО">${voiceButton('sign_name_'+k)}<canvas id="sig_${k}" class="sigpad"></canvas><div class="toolrow"><button class="minibtn" onclick="undoPad('sig_${k}')">↶ Отменить</button><button class="minibtn" onclick="clearPad('sig_${k}')">Очистить подпись</button></div></div>`).join('');restoreFormValues();setTimeout(initPads,80)}
